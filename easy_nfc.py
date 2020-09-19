@@ -18,6 +18,18 @@ TAG_SPECS = {
     'Type2Tag': Tag_Def(0x00, 0, 0),
 }
 
+OEM_BYTES = { # https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf
+    'NTAG213': [('03h', bytes([0xe1, 0x10, 0x12, 0x00])),
+                ('04h', bytes([0x01, 0x03, 0xa0, 0x0c])),
+                ('05h', bytes([0x34, 0x03, 0x00, 0xfe]))],
+    'NTAG215': [('03h', bytes([0xe1, 0x10, 0x3e, 0x00])),
+                ('04h', bytes([0x03, 0x00, 0xfe, 0x00])),
+                ('05h', bytes([0x00, 0x00, 0x00, 0x00]))],
+    'NTAG216': [('03h', bytes([0xe1, 0x10, 0x6d, 0x00])),
+                ('04h', bytes([0x03, 0x00, 0xfe, 0x00])),
+                ('05h', bytes([0x00, 0x00, 0x00, 0x00]))],
+}
+
 class nfc_parser(object):
     def __init__(self, read=True,
                        interface='usb',
@@ -93,6 +105,16 @@ class nfc_parser(object):
             return self.tag.type == self.tag.product
         except AttributeError:
             return None
+
+    @property
+    def oem_bytes(self):
+        try:
+            for loc, d_bytes in OEM_BYTES.get(self.tag_type):
+                assert(self.get_page(loc) == d_bytes)
+        except AssertionError:
+            return False
+        else:
+            return True
 
     @property
     def _pprint(self):
