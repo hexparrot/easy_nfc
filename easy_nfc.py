@@ -62,20 +62,20 @@ class nfc_parser(object):
     @property
     def pages(self):
         num_pages = TAG_SPECS[self.tag_type].pages
-        return [self.raw[i*4:i*4 + 4].hex() for i in range(0, num_pages)]
+        return [self.get_page(i).hex() for i in range(0, num_pages)]
 
     @property
     def static_lockpages(self):
         try:
-            return self.spaced_hex(self.pages[2][4:])
-        except IndexError:
+            return self.spaced_hex(self.get_page(2)[2:])
+        except TypeError:
             return None
 
     @property
     def dynamic_lockpages(self):
         try:
-            return self.spaced_hex(self.pages[129][0:6])
-        except IndexError:
+            return self.spaced_hex(self.get_page(130)[0:3])
+        except TypeError:
             return None
 
     @property
@@ -109,7 +109,10 @@ class nfc_parser(object):
         if self.uid_only:
             return None
         else:
-            return self.raw[page * 4:page * 4 + 4]
+            try:
+                return bytes(self.raw[page * 4:page * 4 + 4])
+            except nfc.tag.tt2.Type2TagCommandError:
+                return None
 
     def dump(self):
         with open('dump.bin', 'wb') as fh:
