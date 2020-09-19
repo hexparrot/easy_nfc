@@ -79,13 +79,13 @@ class TestNFCDump(unittest.TestCase):
         if ni.uid_only:
             self.assertIsNone(ni.static_lockpages)
         else:
-            self.assertEqual(ni.static_lockpages, '00 00')
+            self.assertEqual(ni.static_lockpages, ni.spaced_hex(ni.get_page(2)[2:]))
 
     def test_dynamic_lockpages(self):
         ni = nfc_parser()
 
         if ni.tag.product == 'NXP NTAG215':
-            self.assertEqual(ni.dynamic_lockpages, '00 00 00')
+            self.assertEqual(ni.dynamic_lockpages, ni.spaced_hex(ni.get_page(130)[0:3]))
         else:
             self.assertIsNone(ni.dynamic_lockpages)
 
