@@ -94,9 +94,11 @@ class TestNFCDump(unittest.TestCase):
         import os
 
         ni = nfc_parser()
-        ni.dump()
+        dumped_file = ni.dump()
+        self.assertEqual(dumped_file, 'dump.bin')
 
         dumpfile = Path('./dump.bin')
+        self.assertEqual(dumped_file, dumpfile.name)
         self.assertTrue(dumpfile.exists())
 
         num_pages = TAG_SPECS[ni.tag_type].pages

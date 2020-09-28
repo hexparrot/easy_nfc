@@ -216,9 +216,15 @@ class nfc_parser(object):
         self.tag.write(page_addr, instr)
 
     def dump(self):
-        """ Dumps current tag to 'dump.bin' file in script directory """
-        with open('dump.bin', 'wb') as fh:
+        """
+        Dumps current tag to 'dump.bin' file in script directory.
+
+        Returns: name of file created on fs
+        """
+        filename = 'dump.bin'
+        with open(filename, 'wb') as fh:
             fh.write(self.raw[0:TAG_SPECS[self.tag_type].pages * 4])
+        return filename
 
     def commit_image(self, byte_override=[]):
         """
@@ -287,10 +293,15 @@ if __name__ == '__main__':
         quit(1)
     else:
         if args.dump:
-            ni.dump()
+            fn = ni.dump()
 
         if args.show:
             ni.pprint()
         elif args.summary:
             print(ni)
+
+        if args.dump:
+            print()
+            print('dumped raw tag contents to', fn)
+            print('viewable with standard linux tools such as "xxd -c 4 {}"'.format(fn))
 
